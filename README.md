@@ -17,3 +17,14 @@ mongodb://localhost:27017/
 ```
 http://localhost:3000/api/seed
 ```
+
+## Instalar dependencias
+```
+$ yarn install
+```
+### Clonar .env.template y configurar
+
+## Ejecutar modo desarrollo
+```
+$ yarn dev
+```

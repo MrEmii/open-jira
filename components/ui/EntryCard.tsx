@@ -1,14 +1,18 @@
 import {
+  capitalize,
   Card,
   CardActionArea,
   CardActions,
   CardContent,
   Typography,
 } from '@mui/material';
+import { useRouter } from 'next/router';
 import { FC, DragEvent, useContext } from 'react';
 import { UIContext } from '../../context/ui';
 import { Entry } from '../../interfaces';
-
+import { GetServerSideProps } from 'next';
+import { entriesApi } from '../../apis';
+import { dateUtils } from '../../utils';
 interface EntryCardProps {
   entry: Entry;
 }
@@ -26,6 +30,12 @@ export const EntryCard: FC<EntryCardProps> = ({ entry }) => {
     setIsDragging(false);
   };
 
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push(`/entries/${entry._id}`);
+  };
+
   return (
     <Card
       sx={{
@@ -34,6 +44,7 @@ export const EntryCard: FC<EntryCardProps> = ({ entry }) => {
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onClick={handleClick}
     >
       <CardActionArea>
         <CardContent>
@@ -52,7 +63,9 @@ export const EntryCard: FC<EntryCardProps> = ({ entry }) => {
             paddingRight: 2,
           }}
         >
-          <Typography variant="body2">Hace 30 años :v</Typography>
+          <Typography variant="body2">
+            {capitalize(dateUtils.formatDate(entry.createdAt))}
+          </Typography>
         </CardActions>
       </CardActionArea>
     </Card>
