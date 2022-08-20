@@ -1,91 +1,32 @@
-import { FC, PropsWithChildren, useReducer } from 'react';
+import { FC, PropsWithChildren, useEffect, useReducer } from 'react';
 import { EntriesContext, entriesReducer } from '.';
 import { Entry } from '../../interfaces';
 import { v4 as uuiv4 } from 'uuid';
-
+import { entriesApi } from '../../apis';
 export interface EntriesState {
   entries: Entry[];
 }
 
 const Entries_InitialState: EntriesState = {
-  entries: [
-    {
-      _id: uuiv4(),
-      description:
-        'Laborum elit cupidatat pariatur pariatur laboris magna qui ea ullamco.',
-      createdAt: new Date().getTime(),
-      status: 'pending',
-    },
-    {
-      _id: uuiv4(),
-      description: 'Id sunt ea anim consectetur non ut Lorem quis.',
-      createdAt: new Date().getTime(),
-      status: 'pending',
-    },
-    {
-      _id: uuiv4(),
-      description: 'Elit eu quis ullamco ad.',
-      createdAt: new Date().getTime(),
-      status: 'pending',
-    },
-
-    {
-      _id: uuiv4(),
-      description:
-        'Laborum elit cupidatat pariatur pariatur laboris magna qui ea ullamco.',
-      createdAt: new Date().getTime(),
-      status: 'in-progress',
-    },
-    {
-      _id: uuiv4(),
-      description: 'Id sunt ea anim consectetur non ut Lorem quis.',
-      createdAt: new Date().getTime(),
-      status: 'in-progress',
-    },
-    {
-      _id: uuiv4(),
-      description: 'Elit eu quis ullamco ad.',
-      createdAt: new Date().getTime(),
-      status: 'in-progress',
-    },
-
-    {
-      _id: uuiv4(),
-      description:
-        'Laborum elit cupidatat pariatur pariatur laboris magna qui ea ullamco.',
-      createdAt: new Date().getTime(),
-      status: 'completed',
-    },
-    {
-      _id: uuiv4(),
-      description: 'Id sunt ea anim consectetur non ut Lorem quis.',
-      createdAt: new Date().getTime(),
-      status: 'completed',
-    },
-    {
-      _id: uuiv4(),
-      description: 'Elit eu quis ullamco ad.',
-      createdAt: new Date().getTime(),
-      status: 'completed',
-    },
-  ],
+  entries: [],
 };
 
 export const EntriesProvider: FC<PropsWithChildren> = ({ children }) => {
   const [state, dispatch] = useReducer(entriesReducer, Entries_InitialState);
 
-  const addEntry = (description: string) => {
-    const newEntry: Entry = {
-      _id: uuiv4(),
+  const addEntry = async (description: string) => {
+    const response = await entriesApi.post<{ entry: Entry }>('/entries', {
       description,
-      createdAt: Date.now(),
-      status: 'pending',
-    };
-
-    dispatch({
-      type: 'ADD_ENTRY',
-      payload: newEntry,
     });
+
+    console.log(response);
+
+    if (response.status === 200) {
+      dispatch({
+        type: 'ADD_ENTRY',
+        payload: response.data.entry,
+      });
+    }
   };
 
   const removeEntry = (id: string) => {
@@ -95,13 +36,39 @@ export const EntriesProvider: FC<PropsWithChildren> = ({ children }) => {
     });
   };
 
-  const updateEntry = (entry: Entry) => {
+  const updateEntry = async (entry: Entry) => {
+    const reponse = await entriesApi.put<{ entry: Entry }>(
+      `/entries/${entry._id}`,
+      {
+        description: entry.description,
+        status: entry.status,
+      }
+    );
+
+    if (reponse.status === 200) {
+      dispatch({
+        type: 'UPDATE_ENTRY',
+        payload: entry,
+      });
+    }
+  };
+
+  const fetchEntries = async () => {
+    const { data } = await entriesApi.get<{
+      entries: Entry[];
+    }>('/entries');
+
+    const entries = data.entries;
+
     dispatch({
-      type: 'UPDATE_ENTRY',
-      payload: entry,
+      type: 'BULK_ENTRIES',
+      payload: entries,
     });
   };
 
+  useEffect(() => {
+    fetchEntries();
+  }, []);
   return (
     <EntriesContext.Provider
       value={{ ...state, addEntry, removeEntry, updateEntry }}

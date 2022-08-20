@@ -3,6 +3,10 @@ import { Entry } from '../../interfaces';
 
 type EntriesActionType =
   | {
+      type: 'BULK_ENTRIES';
+      payload: Entry[];
+    }
+  | {
       type: 'ADD_ENTRY';
       payload: Entry;
     }
@@ -40,6 +44,12 @@ export const entriesReducer = (
           return entry;
         }),
       };
+    case 'BULK_ENTRIES':
+      return {
+        ...state,
+        entries: action.payload,
+      };
+
     default:
       return state;
   }

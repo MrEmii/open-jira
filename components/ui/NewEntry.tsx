@@ -57,7 +57,6 @@ export const NewEntry = () => {
             multiline
             label="Nueva entrada"
             placeholder="Escribe una nueva entrada"
-            value={inputValue}
             error={touch && inputValue.trim().length === 0}
             onChange={handleTextChange}
             onBlur={handleTouch}
