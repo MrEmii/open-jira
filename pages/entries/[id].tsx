@@ -68,6 +68,7 @@ const EntryPage: FC<EntryCardProps> = ({ entry }) => {
       status: status,
       createdAt: Date.now(),
     });
+
   };
 
   const isEditing = useMemo(
